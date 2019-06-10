@@ -4,6 +4,9 @@
 ## Written by Bas Langenberg, 2019
 ## Part of https|//github.com/BasLangenberg/Minecraft_Server_Tools
 
+## TODO: Support more sophisticated backup scheme
+## For now we only support hourly backups, the script suggestes otherwise...
+
 # Variables
 HOURLY_KEEP=12
 DAILY_KEEP=4
@@ -15,6 +18,7 @@ DATE=$(date +"%d%m%y%H%M")
 # Funcions
 usage() {
   echo "USAGE: `basename $0` {hourly|daily|weekly|monthly}"
+  echo "For now, only hourly is supported"
   exit 1
 }
 
@@ -29,6 +33,10 @@ check_backup_dirs() {
 
   if [ ! -d "$BASEDIR/backups/hot" ]; then
     mkdir "$BASEDIR/backups/hot"
+  fi
+
+  if [ ! -d "$BASEDIR/backups/arch" ]; then
+    mkdir "$BASEDIR/backups/arch"
   fi
 }
 
@@ -63,13 +71,11 @@ mc "save-on"
 mc "save-all"
 
 # zip
-echo $DATE
-echo $runmode
-cd $BASEDIR/backups/hot && tar -zcf ../${runmode}_${DATE}_tar.gz . && cd -
+cd $BASEDIR/backups/hot && tar -zcf ../arch/${runmode}_${DATE}_tar.gz . && cd -
 
 mc "say World has been backupped!"
 
 # retention
-cleanup
+ls -tp $BASEDIR/backups/arch/ | grep -v '/$' | tail -n +25 | xargs -I {} rm -- {}
 
 exit 0
