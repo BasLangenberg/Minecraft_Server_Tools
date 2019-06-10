@@ -1,0 +1,15 @@
+[Unit]
+Description=Minecraft Server
+
+[Service]
+WorkingDirectory=/home/minecraft/server
+User=minecraft
+Type=forking
+
+ExecStart=/usr/bin/tmux new-session -s mc -d 'java -Xmx1512m -Xms1512m -jar server*.jar nogui'
+
+ExecStop=/usr/bin/tmux send-keys -t mc:0.0 'say SERVER SHUTTING DOWN. Saving map...' C-m 'save-all' C-m 'stop' C-m
+ExecStop=/bin/sleep 2
+
+[Install]
+WantedBy=multi-user.target
